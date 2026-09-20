@@ -167,10 +167,10 @@ export function Teacher({ state }: { state: TeacherState }) {
             cx="110"
             cy="116"
             rx="11"
-            ry={2}
-            initial={{ ry: 2 }}
+            ry={6}
             fill="oklch(0.38 0.09 25)"
-            animate={{ ry: [2, 8, 3, 7, 2] }}
+            style={{ transformBox: "fill-box", transformOrigin: "50% 50%" }}
+            animate={{ scaleY: [0.3, 1.3, 0.5, 1.1, 0.3] }}
             transition={loop(0.6)}
           />
         ) : happy ? (
