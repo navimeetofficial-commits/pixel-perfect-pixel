@@ -97,7 +97,7 @@ function Index() {
     }
     setPhase("classroom");
     setIndex(0);
-    setPose("teaching");
+    setBase("teaching");
   };
 
   const triggerNoPeek = useCallback(() => {
@@ -111,7 +111,7 @@ function Index() {
     setNoPeek(false);
     setPose("celebrating");
     setSpeech("Brilliant! Let's keep going.");
-    setTimeout(() => setPose("teaching"), 2400);
+    setTimeout(() => setBase("teaching"), 2400);
   };
 
   const teacherSize = "w-[128px] sm:w-[180px] lg:w-[224px]";
