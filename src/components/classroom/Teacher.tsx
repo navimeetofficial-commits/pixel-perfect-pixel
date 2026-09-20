@@ -63,7 +63,7 @@ export function Teacher({ state }: { state: TeacherState }) {
     >
       {/* Layer 1 — body */}
       <motion.g
-        style={{ originX: "110px", originY: "340px" }}
+        style={{ transformBox: "fill-box", transformOrigin: "50% 100%" }}
         animate={bodyAnim[state]}
         transition={loop(state === "celebrating" ? 0.7 : 3.4)}
       >
@@ -87,7 +87,7 @@ export function Teacher({ state }: { state: TeacherState }) {
 
       {/* Layer 3 — left arm */}
       <motion.g
-        style={{ originX: "78px", originY: "160px" }}
+        style={{ transformBox: "fill-box", transformOrigin: "50% 4%" }}
         animate={leftArmAnim[state]}
         transition={loop(2.2)}
       >
@@ -97,7 +97,7 @@ export function Teacher({ state }: { state: TeacherState }) {
 
       {/* Layer 3 — right arm (pointing / raising) */}
       <motion.g
-        style={{ originX: "144px", originY: "160px" }}
+        style={{ transformBox: "fill-box", transformOrigin: "50% 4%" }}
         animate={rightArmAnim[state]}
         transition={loop(state === "celebrating" ? 0.7 : 2.4)}
       >
@@ -117,7 +117,7 @@ export function Teacher({ state }: { state: TeacherState }) {
 
       {/* Layer 2 — head */}
       <motion.g
-        style={{ originX: "110px", originY: "150px" }}
+        style={{ transformBox: "fill-box", transformOrigin: "50% 100%" }}
         animate={headAnim[state]}
         transition={loop(state === "listening" ? 2.6 : 4)}
       >
@@ -143,7 +143,7 @@ export function Teacher({ state }: { state: TeacherState }) {
         <motion.g
           animate={{ scaleY: [1, 1, 0.08, 1] }}
           transition={{ duration: 0.34, repeat: Infinity, repeatDelay: 3.1 }}
-          style={{ originY: "92px" }}
+          style={{ transformBox: "fill-box", transformOrigin: "50% 50%" }}
         >
           <ellipse cx="93" cy="92" rx="9" ry="10" fill="white" />
           <ellipse cx="127" cy="92" rx="9" ry="10" fill="white" />
@@ -167,6 +167,7 @@ export function Teacher({ state }: { state: TeacherState }) {
             cx="110"
             cy="116"
             rx="11"
+            ry={2}
             fill="oklch(0.38 0.09 25)"
             animate={{ ry: [2, 8, 3, 7, 2] }}
             transition={loop(0.6)}
