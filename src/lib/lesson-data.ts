@@ -60,5 +60,5 @@ const pattern = /ncert\s+class\s*([4-9]|10)\s+([a-z\s]+?)\s+chapter\s*(\d+)/i;
 export function parseQuery(q: string) {
   const m = q.trim().match(pattern);
   if (!m) return null;
-  return { klass: m[1], subject: m[2].trim(), chapter: m[3] };
+  return { klass: m[1] ?? "", subject: (m[2] ?? "").trim(), chapter: m[3] ?? "" };
 }
