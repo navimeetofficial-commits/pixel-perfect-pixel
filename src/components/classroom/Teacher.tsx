@@ -145,7 +145,7 @@ export function Teacher({
 
       <svg
         viewBox="0 0 220 360"
-        className="min-h-0 w-full flex-1 drop-shadow-[0_14px_20px_rgba(0,0,0,0.18)]"
+        className="h-auto w-full drop-shadow-[0_14px_20px_rgba(0,0,0,0.18)]"
         aria-label="Animated AI teacher"
       >
         {/* Layer 1 — body */}

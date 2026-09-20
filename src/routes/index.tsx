@@ -89,8 +89,7 @@ function Index() {
     setTimeout(() => setPose("teaching"), 2400);
   };
 
-  const teacherSize =
-    "h-[24vh] max-h-[200px] min-h-[110px] w-auto aspect-[220/360] sm:h-[34vh] sm:max-h-[300px] landscape:max-sm:h-[30vh] landscape:max-sm:min-h-[90px]";
+  const teacherSize = "w-[84px] sm:w-[118px] lg:w-[140px]";
 
   return (
     <div className="relative flex h-dvh w-full flex-col overflow-hidden bg-wall">
