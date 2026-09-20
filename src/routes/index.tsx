@@ -121,7 +121,6 @@ function Index() {
                 NCERT Class 4–10 · taught live by your AI teacher
               </p>
               <motion.form
-                layoutId="canvas-morph"
                 onSubmit={submit}
                 className="flex w-full items-center gap-2 rounded-3xl border border-border bg-card p-2 shadow-soft"
               >
@@ -155,7 +154,12 @@ function Index() {
               </div>
 
               <div className="grid min-h-0 grid-rows-[minmax(0,1fr)_auto] gap-2 sm:grid-cols-[minmax(0,1fr)_200px] sm:grid-rows-1 sm:items-stretch sm:gap-4">
-                <motion.div layoutId="canvas-morph" className="min-h-0">
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.92, y: 20 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  transition={{ type: "spring", stiffness: 120, damping: 20 }}
+                  className="h-full min-h-0"
+                >
                   <Blackboard
                     slide={slide}
                     in3d={in3d}

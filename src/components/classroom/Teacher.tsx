@@ -168,6 +168,7 @@ export function Teacher({ state }: { state: TeacherState }) {
             cy="116"
             rx="11"
             ry={2}
+            initial={{ ry: 2 }}
             fill="oklch(0.38 0.09 25)"
             animate={{ ry: [2, 8, 3, 7, 2] }}
             transition={loop(0.6)}
