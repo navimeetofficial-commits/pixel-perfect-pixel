@@ -51,7 +51,7 @@ export function LessonSidebar({ index, onSelect, onRestart }: Props) {
             >
               <span
                 className={`mt-0.5 h-2.5 w-2.5 shrink-0 rounded-full ${
-                  s.module === "Understanding" ? "bg-accent" : "bg-wood"
+                  s.module === "Understanding" ? "bg-accent" : "bg-foreground/40"
                 }`}
               />
               <span className="min-w-0">

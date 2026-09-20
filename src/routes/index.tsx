@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useCallback, useEffect, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { toast } from "sonner";
-import { Teacher, type TeacherState } from "@/components/classroom/Teacher";
+import { Teacher, type TeacherPose } from "@/components/classroom/Teacher";
 import { Blackboard } from "@/components/classroom/Blackboard";
 import { LessonSidebar } from "@/components/classroom/LessonSidebar";
 import { NoPeekHand } from "@/components/classroom/NoPeekHand";
@@ -15,7 +15,7 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "An immersive NCERT Class 4-10 classroom with an animated AI teacher, a blackboard canvas and 3D lesson moments.",
+          "An immersive NCERT Class 4-10 classroom with an animated AI teacher, a lesson screen, videos and 3D moments.",
       },
       { property: "og:title", content: "Chalkmate — Living NCERT Classroom" },
       {
@@ -34,22 +34,37 @@ function Index() {
   const [phase, setPhase] = useState<"search" | "classroom">("search");
   const [query, setQuery] = useState("");
   const [index, setIndex] = useState(0);
-  const [teacher, setTeacher] = useState<TeacherState>("idle");
+  const [pose, setPose] = useState<TeacherPose>("waving");
+  const [speech, setSpeech] = useState<string | null>("Hi! Ask me any NCERT chapter.");
   const [in3d, setIn3d] = useState(false);
   const [fullscreen3d, setFullscreen3d] = useState(false);
   const [noPeek, setNoPeek] = useState(false);
+  const [menu, setMenu] = useState(false);
 
   const slide = lesson.slides[index]!;
 
+  // greeting settles into idle
+  useEffect(() => {
+    if (phase !== "search") return;
+    const id = setTimeout(() => setPose("idle"), 3200);
+    return () => clearTimeout(id);
+  }, [phase]);
+
   useEffect(() => {
     if (phase !== "classroom" || noPeek) return;
-    setIn3d(slide.kind === "3d");
-    setTeacher(slide.kind === "3d" ? "listening" : "teaching");
-  }, [index, phase, slide.kind, noPeek]);
+    const is3d = slide.kind === "3d";
+    setIn3d(is3d);
+    setSpeech(slide.say);
+    setPose(is3d ? "explaining" : slide.kind === "video" ? "listening" : "teaching");
+    const id = setTimeout(() => setPose(is3d ? "pointing" : "explaining"), 5000);
+    return () => clearTimeout(id);
+  }, [index, phase, slide, noPeek]);
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!parseQuery(query)) {
+      setPose("thinking");
+      setSpeech("Hmm, I don't know that one yet.");
       toast("We are expanding!", {
         description: "For now, try typing: NCERT [class] [subject] [chapter no]",
       });
@@ -57,48 +72,45 @@ function Index() {
     }
     setPhase("classroom");
     setIndex(0);
-    setTeacher("teaching");
+    setPose("teaching");
   };
 
   const triggerNoPeek = useCallback(() => {
     setFullscreen3d(false);
-    setTeacher("nopeek");
+    setPose("nopeek");
+    setSpeech("Cover the board — answer from memory!");
     setNoPeek(true);
   }, []);
 
   const endNoPeek = () => {
     setNoPeek(false);
-    setTeacher("celebrating");
-    setTimeout(() => setTeacher("teaching"), 2200);
+    setPose("celebrating");
+    setSpeech("Brilliant! Let's keep going.");
+    setTimeout(() => setPose("teaching"), 2400);
   };
+
+  const teacherSize = "w-[84px] sm:w-[118px] lg:w-[140px]";
 
   return (
     <div className="relative flex h-dvh w-full flex-col overflow-hidden bg-wall">
-      {/* classroom wall detail */}
-      <AnimatePresence>
-        {phase === "classroom" && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="pointer-events-none absolute inset-0"
-          >
-            <div className="absolute inset-0 opacity-[0.35] [background-image:linear-gradient(oklch(0.62_0.09_63/0.18)_1px,transparent_1px),linear-gradient(90deg,oklch(0.62_0.09_63/0.12)_1px,transparent_1px)] [background-size:56px_56px]" />
-            <div className="absolute bottom-0 h-16 w-full bg-wood-dark/80" />
-            <div className="absolute bottom-16 h-3 w-full bg-wood" />
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      <header className="relative z-20 flex items-center justify-between px-4 py-3 sm:px-6">
+      <header className="relative z-20 flex items-center justify-between gap-2 px-3 py-3 sm:px-5">
         <div className="flex min-w-0 items-center gap-2">
-          <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-primary font-display text-primary-foreground">
+          {phase === "classroom" && (
+            <button
+              onClick={() => setMenu(true)}
+              className="rounded-lg border border-border px-2.5 py-1.5 text-sm sm:hidden"
+              aria-label="Open lesson menu"
+            >
+              ☰
+            </button>
+          )}
+          <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-primary text-sm font-semibold text-primary-foreground">
             C
           </span>
-          <span className="truncate font-display text-lg font-semibold">Chalkmate</span>
+          <span className="truncate text-base font-semibold">Chalkmate</span>
         </div>
         {phase === "classroom" && (
-          <span className="hidden truncate text-sm text-muted-foreground sm:block">
+          <span className="hidden truncate text-sm text-muted-foreground md:block">
             {lesson.chapter}
           </span>
         )}
@@ -109,43 +121,58 @@ function Index() {
           {phase === "search" ? (
             <motion.div
               key="search"
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.96 }}
-              className="mx-auto flex h-full max-w-2xl flex-col items-center justify-center gap-6 px-4"
+              exit={{ opacity: 0, scale: 0.97 }}
+              transition={{ type: "spring", stiffness: 140, damping: 20 }}
+              className="mx-auto flex h-full w-full max-w-2xl flex-col items-center justify-center gap-5 px-4 pb-[26vh] landscape:max-sm:gap-3 landscape:max-sm:pb-[18vh]"
             >
-              <h1 className="text-center text-3xl font-semibold leading-tight sm:text-5xl">
+              <h1 className="text-center text-2xl font-semibold leading-tight sm:text-4xl">
                 What shall we learn today?
               </h1>
-              <p className="text-center text-sm text-muted-foreground">
+              <p className="text-center text-xs text-muted-foreground sm:text-sm">
                 NCERT Class 4–10 · taught live by your AI teacher
               </p>
-              <motion.form
+              <form
                 onSubmit={submit}
-                className="flex w-full items-center gap-2 rounded-3xl border border-border bg-card p-2 shadow-soft"
+                className="flex w-full items-center gap-2 rounded-[28px] border border-border bg-card p-1.5 shadow-soft focus-within:border-foreground/25"
               >
                 <input
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   placeholder="NCERT class 10 science chapter 1"
-                  className="min-w-0 flex-1 bg-transparent px-4 py-3 text-base outline-none placeholder:text-muted-foreground"
+                  className="min-w-0 flex-1 bg-transparent px-4 py-3 text-sm outline-none placeholder:text-muted-foreground sm:text-base"
                 />
                 <button
                   type="submit"
-                  className="shrink-0 rounded-2xl bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground hover:opacity-90"
+                  className="shrink-0 rounded-full bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90"
                 >
-                  Start
+                  Ask
                 </button>
-              </motion.form>
+              </form>
+              <div className="flex flex-wrap justify-center gap-2">
+                {["NCERT class 10 science chapter 1", "NCERT class 7 maths chapter 2"].map(
+                  (s) => (
+                    <button
+                      key={s}
+                      onClick={() => setQuery(s)}
+                      className="rounded-full border border-border bg-card px-3 py-1.5 text-xs text-muted-foreground hover:bg-secondary"
+                    >
+                      {s}
+                    </button>
+                  ),
+                )}
+              </div>
             </motion.div>
           ) : (
             <motion.div
               key="classroom"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="grid h-full min-h-0 grid-cols-1 gap-3 px-3 pb-20 sm:grid-cols-[230px_minmax(0,1fr)] sm:gap-4 sm:px-5 sm:pb-24 landscape:max-sm:grid-cols-[190px_minmax(0,1fr)]"
+              initial={{ opacity: 0, scale: 0.96 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ type: "spring", stiffness: 130, damping: 20 }}
+              className="flex h-full min-h-0 gap-3 px-3 pb-3 sm:gap-4 sm:px-5 sm:pb-5"
             >
-              <div className="hidden min-h-0 sm:block landscape:max-sm:block">
+              <div className="hidden min-h-0 w-[240px] shrink-0 sm:block">
                 <LessonSidebar
                   index={index}
                   onSelect={setIndex}
@@ -153,13 +180,8 @@ function Index() {
                 />
               </div>
 
-              <div className="grid min-h-0 grid-rows-[minmax(0,1fr)_auto] gap-2 sm:grid-cols-[minmax(0,1fr)_200px] sm:grid-rows-1 sm:items-stretch sm:gap-4">
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.92, y: 20 }}
-                  animate={{ opacity: 1, scale: 1, y: 0 }}
-                  transition={{ type: "spring", stiffness: 120, damping: 20 }}
-                  className="h-full min-h-0"
-                >
+              <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-2">
+                <div className="min-h-0 flex-1 pr-0 sm:pr-[clamp(0px,14vw,200px)]">
                   <Blackboard
                     slide={slide}
                     in3d={in3d}
@@ -167,9 +189,28 @@ function Index() {
                     onEnter3d={() => setFullscreen3d(true)}
                     onClose3d={() => setFullscreen3d(false)}
                   />
-                </motion.div>
-                <div className="flex h-24 items-end justify-center sm:h-full sm:pb-2">
-                  <Teacher state={teacher} />
+                </div>
+                <div className="flex shrink-0 items-center gap-2 overflow-x-auto pb-[24vh] sm:pb-0 landscape:max-sm:pb-[8vh]">
+                  <button
+                    onClick={() => setIndex((i) => Math.max(0, i - 1))}
+                    className="shrink-0 rounded-full border border-border bg-card px-4 py-2 text-sm hover:bg-secondary"
+                  >
+                    Back
+                  </button>
+                  <button
+                    onClick={triggerNoPeek}
+                    className="shrink-0 rounded-full border border-border bg-card px-4 py-2 text-sm hover:bg-secondary"
+                  >
+                    Quiz me
+                  </button>
+                  <button
+                    onClick={() =>
+                      setIndex((i) => Math.min(lesson.slides.length - 1, i + 1))
+                    }
+                    className="shrink-0 rounded-full bg-primary px-5 py-2 text-sm font-medium text-primary-foreground hover:opacity-90"
+                  >
+                    Next
+                  </button>
                 </div>
               </div>
             </motion.div>
@@ -177,41 +218,48 @@ function Index() {
         </AnimatePresence>
       </main>
 
+      {/* mobile lesson drawer */}
+      <AnimatePresence>
+        {menu && phase === "classroom" && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setMenu(false)}
+            className="fixed inset-0 z-50 bg-foreground/20 backdrop-blur-sm sm:hidden"
+          >
+            <motion.div
+              initial={{ x: -300 }}
+              animate={{ x: 0 }}
+              exit={{ x: -300 }}
+              transition={{ type: "spring", stiffness: 200, damping: 24 }}
+              onClick={(e) => e.stopPropagation()}
+              className="h-full w-[82vw] max-w-[300px] p-3"
+            >
+              <LessonSidebar
+                index={index}
+                onSelect={(i) => {
+                  setIndex(i);
+                  setMenu(false);
+                }}
+                onRestart={() => {
+                  setMenu(false);
+                  setPhase("search");
+                }}
+              />
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* the teacher lives here from the very first screen — drag her anywhere */}
+      <div className="pointer-events-none fixed bottom-2 right-2 z-[55] sm:bottom-4 sm:right-4">
+        <Teacher pose={pose} speech={noPeek ? null : speech} className={teacherSize} />
+      </div>
+
       <AnimatePresence>
         {noPeek && <NoPeekHand prompt={slide.recallPrompt} onAnswer={endNoPeek} />}
       </AnimatePresence>
-
-      {/* Dev controls */}
-      <div className="fixed bottom-3 left-1/2 z-[60] flex max-w-[95vw] -translate-x-1/2 items-center gap-1 overflow-x-auto rounded-full border border-border bg-card/90 px-2 py-1.5 shadow-soft backdrop-blur">
-        {[
-          {
-            label: "Start Lesson",
-            fn: () => {
-              setPhase("classroom");
-              setIndex(0);
-              setTeacher("teaching");
-            },
-          },
-          {
-            label: "Show 3D Prompt",
-            fn: () => {
-              setPhase("classroom");
-              setIndex(lesson.slides.findIndex((s) => s.kind === "3d"));
-            },
-          },
-          { label: "Play No-Peek", fn: triggerNoPeek },
-          { label: "Celebrate", fn: () => setTeacher("celebrating") },
-          { label: "Next", fn: () => setIndex((i) => (i + 1) % lesson.slides.length) },
-        ].map((b) => (
-          <button
-            key={b.label}
-            onClick={b.fn}
-            className="shrink-0 whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-medium hover:bg-secondary"
-          >
-            {b.label}
-          </button>
-        ))}
-      </div>
     </div>
   );
 }
