@@ -81,6 +81,19 @@ const leftArm: Record<TeacherPose, TargetAndTransition> = {
   nopeek: { rotate: 8 },
 };
 
+// where the eyes rest for each pose (before cursor tracking is added on top)
+const gazeFor: Record<TeacherPose, [number, number]> = {
+  idle: [0, 0],
+  waving: [0, -1],
+  teaching: [-3, 0],
+  pointing: [-4, 0],
+  explaining: [0, 0],
+  listening: [0, 1],
+  thinking: [3, -3],
+  celebrating: [0, -2],
+  nopeek: [0, 0],
+};
+
 const speed: Record<TeacherPose, number> = {
   idle: 3.4,
   waving: 0.7,
@@ -97,11 +110,13 @@ export function Teacher({
   pose = "idle",
   speech,
   draggable = true,
+  onPoke,
   className = "",
 }: {
   pose?: TeacherPose;
   speech?: string | null;
   draggable?: boolean;
+  onPoke?: () => void;
   className?: string;
 }) {
   const expression = expressionFor[pose];
@@ -109,6 +124,9 @@ export function Teacher({
   const t = speed[pose];
   const wrapRef = useRef<HTMLDivElement>(null);
   const [dragged, setDragged] = useState(false);
+  const movedRef = useRef(false);
+  const rafRef = useRef(0);
+  const [gaze, setGaze] = useState({ x: 0, y: 0 });
 
   useEffect(() => {
     if (!dragged) return;
@@ -116,14 +134,49 @@ export function Teacher({
     return () => clearTimeout(id);
   }, [dragged]);
 
+  // eyes follow the cursor around the page
+  useEffect(() => {
+    const onMove = (e: PointerEvent) => {
+      if (rafRef.current) return;
+      rafRef.current = requestAnimationFrame(() => {
+        rafRef.current = 0;
+        const el = wrapRef.current;
+        if (!el) return;
+        const r = el.getBoundingClientRect();
+        const cx = r.left + r.width / 2;
+        const cy = r.top + r.height * 0.28;
+        const dx = e.clientX - cx;
+        const dy = e.clientY - cy;
+        const d = Math.hypot(dx, dy) || 1;
+        const m = Math.min(1, d / 320);
+        setGaze({ x: (dx / d) * 4.5 * m, y: (dy / d) * 3.5 * m });
+      });
+    };
+    window.addEventListener("pointermove", onMove);
+    return () => {
+      window.removeEventListener("pointermove", onMove);
+      cancelAnimationFrame(rafRef.current);
+    };
+  }, []);
+
+  const g = gazeFor[pose];
+
   return (
     <motion.div
       ref={wrapRef}
       drag={draggable}
       dragMomentum={false}
       dragElastic={0.12}
-      onDragStart={() => setDragged(true)}
+      onDragStart={() => {
+        setDragged(true);
+        movedRef.current = true;
+      }}
+      onDragEnd={() => setTimeout(() => (movedRef.current = false), 120)}
       whileDrag={{ scale: 1.05, cursor: "grabbing" }}
+      whileHover={{ scale: 1.04, y: -5 }}
+      onTap={() => {
+        if (!movedRef.current) onPoke?.();
+      }}
       className={`pointer-events-auto flex select-none flex-col items-end justify-end ${
         draggable ? "cursor-grab touch-none" : ""
       } ${className}`}
@@ -136,7 +189,7 @@ export function Teacher({
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 4, scale: 0.95 }}
             transition={{ type: "spring", stiffness: 260, damping: 20 }}
-            className="mb-1 w-[min(240px,60vw)] rounded-2xl rounded-br-sm border border-border bg-card px-3 py-2 text-xs leading-snug text-foreground shadow-soft sm:text-sm"
+            className="mb-1 w-[min(250px,60vw)] rounded-2xl rounded-br-sm border border-border bg-card px-3 py-2 text-xs leading-snug text-foreground shadow-soft sm:text-sm"
           >
             {speech}
           </motion.div>
@@ -218,7 +271,7 @@ export function Teacher({
             <rect x="116" y="74" width="22" height="5" rx="2.5" fill="oklch(0.28 0.02 40)" />
           </motion.g>
 
-          {/* eyes + blink */}
+          {/* eyes + blink + cursor tracking */}
           <motion.g
             animate={{ scaleY: [1, 1, 0.08, 1] }}
             transition={{ duration: 0.34, repeat: Infinity, repeatDelay: 2.9 }}
@@ -227,16 +280,8 @@ export function Teacher({
             <ellipse cx="93" cy="92" rx="9" ry="10" fill="white" />
             <ellipse cx="127" cy="92" rx="9" ry="10" fill="white" />
             <motion.g
-              animate={
-                pose === "listening"
-                  ? { x: 0, y: 1 }
-                  : pose === "thinking"
-                    ? { x: [2, 4, 2], y: -3 }
-                    : pose === "idle"
-                      ? { x: [-3, 3, -3], y: 0 }
-                      : { x: -3, y: 0 }
-              }
-              transition={loop(4)}
+              animate={{ x: gaze.x + g[0], y: gaze.y + g[1] }}
+              transition={{ type: "spring", stiffness: 220, damping: 22 }}
             >
               <circle cx="93" cy="93" r="4.5" fill="oklch(0.2 0.02 260)" />
               <circle cx="127" cy="93" r="4.5" fill="oklch(0.2 0.02 260)" />
