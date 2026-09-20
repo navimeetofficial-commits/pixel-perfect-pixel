@@ -89,7 +89,7 @@ function Index() {
     setTimeout(() => setPose("teaching"), 2400);
   };
 
-  const teacherSize = "w-[84px] sm:w-[118px] lg:w-[140px]";
+  const teacherSize = "w-[128px] sm:w-[180px] lg:w-[224px]";
 
   return (
     <div className="relative flex h-dvh w-full flex-col overflow-hidden bg-wall">
@@ -181,7 +181,7 @@ function Index() {
               </div>
 
               <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-2">
-                <div className="min-h-0 flex-1 pr-0 sm:pr-[clamp(0px,14vw,200px)]">
+                <div className="min-h-0 flex-1 pr-0 sm:pr-[clamp(0px,20vw,260px)]">
                   <Blackboard
                     slide={slide}
                     in3d={in3d}
