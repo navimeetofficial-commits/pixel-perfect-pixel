@@ -114,7 +114,8 @@ function Index() {
     setTimeout(() => setBase("teaching"), 2400);
   };
 
-  const teacherSize = "w-[128px] sm:w-[180px] lg:w-[224px]";
+  const teacherSize =
+    "w-[156px] landscape:max-sm:w-[112px] sm:w-[216px] sm:landscape:max-sm:w-[160px] lg:w-[268px]";
 
   return (
     <div className="relative flex h-dvh w-full flex-col overflow-hidden bg-wall">
@@ -165,6 +166,11 @@ function Index() {
                 <input
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
+                  onFocus={() => {
+                    setPose("listening");
+                    setSpeech("I'm listening… type a chapter!");
+                  }}
+                  onBlur={() => setPose(basePoseRef.current)}
                   placeholder="NCERT class 10 science chapter 1"
                   className="min-w-0 flex-1 bg-transparent px-4 py-3 text-sm outline-none placeholder:text-muted-foreground sm:text-base"
                 />
@@ -206,7 +212,7 @@ function Index() {
               </div>
 
               <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-2">
-                <div className="min-h-0 flex-1 pr-0 sm:pr-[clamp(0px,20vw,260px)]">
+                <div className="min-h-0 flex-1 pr-0 sm:pr-[clamp(0px,23vw,300px)]">
                   <Blackboard
                     slide={slide}
                     in3d={in3d}
@@ -279,7 +285,12 @@ function Index() {
 
       {/* the teacher lives here from the very first screen — drag her anywhere */}
       <div className="pointer-events-none fixed bottom-2 right-2 z-[55] sm:bottom-4 sm:right-4">
-        <Teacher pose={pose} speech={noPeek ? null : speech} className={teacherSize} />
+        <Teacher
+          pose={pose}
+          speech={noPeek ? null : speech}
+          onPoke={poke}
+          className={teacherSize}
+        />
       </div>
 
       <AnimatePresence>
