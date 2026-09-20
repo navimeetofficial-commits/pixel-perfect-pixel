@@ -1,4 +1,4 @@
-import { motion } from "motion/react";
+import { motion, type TargetAndTransition } from "motion/react";
 
 export type TeacherState =
   | "idle"
@@ -8,7 +8,7 @@ export type TeacherState =
   | "correcting"
   | "nopeek";
 
-const bodyAnim: Record<TeacherState, Record<string, unknown>> = {
+const bodyAnim: Record<TeacherState, TargetAndTransition> = {
   idle: { y: [0, -3, 0], scaleY: [1, 1.015, 1], rotate: 0 },
   teaching: { y: [0, -4, 0], scaleY: [1, 1.02, 1], rotate: -2 },
   listening: { y: [0, -2, 0], scaleY: [1, 1.01, 1], rotate: 2 },
@@ -17,7 +17,7 @@ const bodyAnim: Record<TeacherState, Record<string, unknown>> = {
   nopeek: { y: 0, scaleY: 1, rotate: 0 },
 };
 
-const headAnim: Record<TeacherState, Record<string, unknown>> = {
+const headAnim: Record<TeacherState, TargetAndTransition> = {
   idle: { rotate: [-3, 3, -3], x: [0, 2, 0] },
   teaching: { rotate: [-6, -2, -6], x: 0 },
   listening: { rotate: [10, 8, 10], x: 0 },
@@ -26,7 +26,7 @@ const headAnim: Record<TeacherState, Record<string, unknown>> = {
   nopeek: { rotate: 0, x: 0 },
 };
 
-const rightArmAnim: Record<TeacherState, Record<string, unknown>> = {
+const rightArmAnim: Record<TeacherState, TargetAndTransition> = {
   idle: { rotate: [4, -4, 4] },
   teaching: { rotate: [-58, -48, -58] },
   listening: { rotate: 10 },
@@ -35,7 +35,7 @@ const rightArmAnim: Record<TeacherState, Record<string, unknown>> = {
   nopeek: { rotate: -95 },
 };
 
-const leftArmAnim: Record<TeacherState, Record<string, unknown>> = {
+const leftArmAnim: Record<TeacherState, TargetAndTransition> = {
   idle: { rotate: [-4, 4, -4] },
   teaching: { rotate: [14, 4, 14] },
   listening: { rotate: -8 },
