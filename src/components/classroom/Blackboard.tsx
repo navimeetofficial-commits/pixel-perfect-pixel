@@ -14,16 +14,14 @@ export function Blackboard({ slide, in3d, fullscreen3d, onEnter3d, onClose3d }: 
 
   return (
     <motion.div
-      layout
       className={
         fullscreen3d
-          ? "fixed inset-3 z-40 overflow-hidden rounded-3xl border-8 border-wood bg-chalkboard-deep shadow-board"
-          : "relative h-full w-full overflow-hidden rounded-3xl border-8 border-wood bg-chalkboard shadow-board"
+          ? "fixed inset-2 z-40 overflow-hidden rounded-3xl bg-chalkboard-deep shadow-board sm:inset-4"
+          : "relative flex h-full w-full min-h-0 flex-col overflow-hidden rounded-3xl bg-chalkboard shadow-board"
       }
       transition={{ type: "spring", stiffness: 160, damping: 22 }}
     >
-      {/* chalk dust texture */}
-      <div className="pointer-events-none absolute inset-0 opacity-25 [background:radial-gradient(circle_at_20%_20%,white_0%,transparent_45%),radial-gradient(circle_at_80%_70%,white_0%,transparent_40%)]" />
+      <div className="pointer-events-none absolute inset-0 opacity-20 [background:radial-gradient(circle_at_20%_10%,white_0%,transparent_45%)]" />
 
       <AnimatePresence mode="wait">
         {fullscreen3d ? (
@@ -37,16 +35,16 @@ export function Blackboard({ slide, in3d, fullscreen3d, onEnter3d, onClose3d }: 
             <motion.div
               animate={{ rotateY: 360 }}
               transition={{ duration: 14, repeat: Infinity, ease: "linear" }}
-              className="grid h-40 w-40 place-items-center rounded-2xl border-2 border-chalk-muted/60 bg-chalk/10 text-chalkwrite text-2xl [transform-style:preserve-3d] sm:h-56 sm:w-56"
+              className="grid h-36 w-36 place-items-center rounded-2xl border border-chalk/30 bg-chalk/10 text-lg text-chalk [transform-style:preserve-3d] sm:h-56 sm:w-56 sm:text-2xl"
             >
               CaO + H₂O
             </motion.div>
-            <p className="absolute bottom-6 text-chalkwrite text-xl">
+            <p className="absolute bottom-5 px-4 text-center text-sm text-chalk-muted sm:text-base">
               Drag, spin and explore the reaction chamber
             </p>
             <button
               onClick={onClose3d}
-              className="absolute right-4 top-4 rounded-full bg-accent px-4 py-2 text-sm font-semibold text-accent-foreground shadow-soft"
+              className="absolute right-3 top-3 rounded-full bg-chalk/15 px-4 py-2 text-sm font-medium text-chalk backdrop-blur hover:bg-chalk/25"
             >
               Close 3D
             </button>
@@ -57,21 +55,40 @@ export function Blackboard({ slide, in3d, fullscreen3d, onEnter3d, onClose3d }: 
             initial={{ opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0, filter: blurred ? "blur(8px)" : "blur(0px)" }}
             exit={{ opacity: 0, y: -14 }}
-            className="flex h-full flex-col gap-3 p-5 sm:gap-4 sm:p-8"
+            className="flex min-h-0 flex-1 flex-col gap-3 p-4 sm:gap-4 sm:p-7"
           >
-            <span className="w-fit rounded-full border border-chalk-muted/40 px-3 py-1 text-[11px] uppercase tracking-widest text-chalk-muted">
+            <span className="w-fit rounded-full border border-chalk/20 px-3 py-1 text-[10px] uppercase tracking-widest text-chalk-muted sm:text-[11px]">
               {slide.module}
             </span>
-            <h2 className="text-chalkwrite text-3xl leading-tight sm:text-5xl">
+            <h2 className="text-xl font-semibold leading-tight text-chalk sm:text-3xl">
               {slide.title}
             </h2>
-            <div className="space-y-2 overflow-y-auto pr-1">
-              {slide.body.map((line) => (
-                <p key={line} className="text-chalkwrite text-lg sm:text-2xl">
-                  {line}
-                </p>
-              ))}
-            </div>
+
+            {slide.kind === "video" ? (
+              <div className="relative min-h-0 flex-1 overflow-hidden rounded-2xl bg-black/40">
+                <motion.div
+                  animate={{ opacity: [0.5, 1, 0.5], scale: [1, 1.06, 1] }}
+                  transition={{ duration: 3.2, repeat: Infinity, ease: "easeInOut" }}
+                  className="absolute inset-0 [background:radial-gradient(circle_at_50%_60%,oklch(0.8_0.12_80/0.5),transparent_60%)]"
+                />
+                <div className="relative flex h-full flex-col items-center justify-center gap-2 text-chalk">
+                  <span className="grid h-12 w-12 place-items-center rounded-full bg-chalk/20 text-lg">
+                    ▶
+                  </span>
+                  <p className="px-4 text-center text-xs text-chalk-muted sm:text-sm">
+                    {slide.body[0]}
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <div className="min-h-0 flex-1 space-y-2 overflow-y-auto pr-1">
+                {slide.body.map((line) => (
+                  <p key={line} className="text-sm leading-relaxed text-chalk sm:text-lg">
+                    {line}
+                  </p>
+                ))}
+              </div>
+            )}
           </motion.div>
         )}
       </AnimatePresence>
@@ -82,11 +99,11 @@ export function Blackboard({ slide, in3d, fullscreen3d, onEnter3d, onClose3d }: 
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.9 }}
-            className="absolute inset-0 grid place-items-center"
+            className="absolute inset-0 grid place-items-center p-4"
           >
             <button
               onClick={onEnter3d}
-              className="rounded-full bg-accent px-6 py-3 font-display text-base font-semibold text-accent-foreground shadow-soft transition-transform hover:scale-105 sm:text-lg"
+              className="rounded-full bg-accent px-5 py-3 text-sm font-semibold text-accent-foreground shadow-soft transition-transform hover:scale-105 sm:text-base"
             >
               Enter 3D Experience
             </button>
