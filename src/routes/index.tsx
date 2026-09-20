@@ -115,7 +115,7 @@ function Index() {
   };
 
   const teacherSize =
-    "w-[156px] landscape:max-sm:w-[112px] sm:w-[216px] sm:landscape:max-sm:w-[160px] lg:w-[268px]";
+    "w-[156px] sm:w-[216px] lg:w-[268px] [@media(max-height:520px)]:w-[118px]";
 
   return (
     <div className="relative flex h-dvh w-full flex-col overflow-hidden bg-wall">
