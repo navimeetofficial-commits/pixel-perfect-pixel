@@ -55,7 +55,7 @@ export function NoPeekHand({
         transition={{ delay: 0.28, type: "spring", stiffness: 200, damping: 20 }}
         className="relative z-10 w-full max-w-md rounded-3xl border border-border bg-card p-5 text-center shadow-soft sm:p-7"
       >
-        <p className="font-display text-lg font-semibold sm:text-xl">No peeking! 🤚</p>
+        <p className="font-display text-lg font-semibold sm:text-xl">No peeking!</p>
         <p className="mt-2 text-sm text-muted-foreground sm:text-base">{prompt}</p>
         <button
           onClick={onAnswer}

@@ -90,7 +90,7 @@ function Index() {
   };
 
   const teacherSize =
-    "h-[26vh] max-h-[220px] min-h-[120px] w-auto aspect-[220/360] landscape:max-sm:h-[38vh]";
+    "h-[24vh] max-h-[200px] min-h-[110px] w-auto aspect-[220/360] sm:h-[34vh] sm:max-h-[300px] landscape:max-sm:h-[40vh]";
 
   return (
     <div className="relative flex h-dvh w-full flex-col overflow-hidden bg-wall">
