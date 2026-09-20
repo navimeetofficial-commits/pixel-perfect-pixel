@@ -115,7 +115,7 @@ function Index() {
   };
 
   const teacherSize =
-    "w-[156px] sm:w-[216px] lg:w-[268px] [@media(max-height:520px)]:w-[118px]";
+    "w-[156px] sm:w-[224px] lg:w-[336px] 2xl:w-[384px] [@media(max-height:520px)]:w-[118px]";
 
   return (
     <div className="relative flex h-dvh w-full flex-col overflow-hidden bg-wall">
@@ -212,7 +212,7 @@ function Index() {
               </div>
 
               <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-2">
-                <div className="min-h-0 flex-1 pr-0 sm:pr-[clamp(0px,23vw,300px)]">
+                <div className="min-h-0 flex-1 pr-0 sm:pr-[clamp(0px,26vw,380px)]">
                   <Blackboard
                     slide={slide}
                     in3d={in3d}
