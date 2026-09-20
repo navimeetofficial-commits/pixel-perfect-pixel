@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { toast } from "sonner";
 import { Teacher, type TeacherPose } from "@/components/classroom/Teacher";
@@ -42,11 +42,17 @@ function Index() {
   const [menu, setMenu] = useState(false);
 
   const slide = lesson.slides[index]!;
+  const basePoseRef = useRef<TeacherPose>("waving");
+  const pokeTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const setBase = (p: TeacherPose) => {
+    basePoseRef.current = p;
+    setPose(p);
+  };
 
   // greeting settles into idle
   useEffect(() => {
     if (phase !== "search") return;
-    const id = setTimeout(() => setPose("idle"), 3200);
+    const id = setTimeout(() => setBase("idle"), 3200);
     return () => clearTimeout(id);
   }, [phase]);
 
@@ -55,10 +61,29 @@ function Index() {
     const is3d = slide.kind === "3d";
     setIn3d(is3d);
     setSpeech(slide.say);
-    setPose(is3d ? "explaining" : slide.kind === "video" ? "listening" : "teaching");
-    const id = setTimeout(() => setPose(is3d ? "pointing" : "explaining"), 5000);
+    setBase(is3d ? "explaining" : slide.kind === "video" ? "listening" : "teaching");
+    const id = setTimeout(
+      () => setBase(is3d ? "pointing" : "explaining"),
+      5000,
+    );
     return () => clearTimeout(id);
   }, [index, phase, slide, noPeek]);
+
+  // tapping the teacher gets a fun reaction
+  const poke = () => {
+    const reactions: Array<[TeacherPose, string]> = [
+      ["waving", "Hello hello! Great to see you!"],
+      ["celebrating", "Hey, you poked me! Hehe!"],
+      ["explaining", "Any questions? Ask away!"],
+      ["thinking", "Hmm… what shall we explore next?"],
+      ["listening", "I'm all ears — tell me!"],
+    ];
+    const [p, s] = reactions[Math.floor(Math.random() * reactions.length)]!;
+    setPose(p);
+    setSpeech(s);
+    clearTimeout(pokeTimer.current);
+    pokeTimer.current = setTimeout(() => setPose(basePoseRef.current), 2800);
+  };
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -72,7 +97,7 @@ function Index() {
     }
     setPhase("classroom");
     setIndex(0);
-    setPose("teaching");
+    setBase("teaching");
   };
 
   const triggerNoPeek = useCallback(() => {
@@ -86,10 +111,11 @@ function Index() {
     setNoPeek(false);
     setPose("celebrating");
     setSpeech("Brilliant! Let's keep going.");
-    setTimeout(() => setPose("teaching"), 2400);
+    setTimeout(() => setBase("teaching"), 2400);
   };
 
-  const teacherSize = "w-[128px] sm:w-[180px] lg:w-[224px]";
+  const teacherSize =
+    "w-[156px] sm:w-[224px] lg:w-[336px] 2xl:w-[384px] [@media(max-height:520px)]:w-[118px]";
 
   return (
     <div className="relative flex h-dvh w-full flex-col overflow-hidden bg-wall">
@@ -140,6 +166,11 @@ function Index() {
                 <input
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
+                  onFocus={() => {
+                    setPose("listening");
+                    setSpeech("I'm listening… type a chapter!");
+                  }}
+                  onBlur={() => setPose(basePoseRef.current)}
                   placeholder="NCERT class 10 science chapter 1"
                   className="min-w-0 flex-1 bg-transparent px-4 py-3 text-sm outline-none placeholder:text-muted-foreground sm:text-base"
                 />
@@ -181,7 +212,7 @@ function Index() {
               </div>
 
               <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-2">
-                <div className="min-h-0 flex-1 pr-0 sm:pr-[clamp(0px,20vw,260px)]">
+                <div className="min-h-0 flex-1 pr-0 sm:pr-[clamp(0px,26vw,380px)]">
                   <Blackboard
                     slide={slide}
                     in3d={in3d}
@@ -254,7 +285,12 @@ function Index() {
 
       {/* the teacher lives here from the very first screen — drag her anywhere */}
       <div className="pointer-events-none fixed bottom-2 right-2 z-[55] sm:bottom-4 sm:right-4">
-        <Teacher pose={pose} speech={noPeek ? null : speech} className={teacherSize} />
+        <Teacher
+          pose={pose}
+          speech={noPeek ? null : speech}
+          onPoke={poke}
+          className={teacherSize}
+        />
       </div>
 
       <AnimatePresence>
