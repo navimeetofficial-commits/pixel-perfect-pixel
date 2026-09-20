@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { toast } from "sonner";
 import { Teacher, type TeacherPose } from "@/components/classroom/Teacher";
@@ -42,11 +42,17 @@ function Index() {
   const [menu, setMenu] = useState(false);
 
   const slide = lesson.slides[index]!;
+  const basePoseRef = useRef<TeacherPose>("waving");
+  const pokeTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const setBase = (p: TeacherPose) => {
+    basePoseRef.current = p;
+    setPose(p);
+  };
 
   // greeting settles into idle
   useEffect(() => {
     if (phase !== "search") return;
-    const id = setTimeout(() => setPose("idle"), 3200);
+    const id = setTimeout(() => setBase("idle"), 3200);
     return () => clearTimeout(id);
   }, [phase]);
 
@@ -55,10 +61,29 @@ function Index() {
     const is3d = slide.kind === "3d";
     setIn3d(is3d);
     setSpeech(slide.say);
-    setPose(is3d ? "explaining" : slide.kind === "video" ? "listening" : "teaching");
-    const id = setTimeout(() => setPose(is3d ? "pointing" : "explaining"), 5000);
+    setBase(is3d ? "explaining" : slide.kind === "video" ? "listening" : "teaching");
+    const id = setTimeout(
+      () => setBase(is3d ? "pointing" : "explaining"),
+      5000,
+    );
     return () => clearTimeout(id);
   }, [index, phase, slide, noPeek]);
+
+  // tapping the teacher gets a fun reaction
+  const poke = () => {
+    const reactions: Array<[TeacherPose, string]> = [
+      ["waving", "Hello hello! Great to see you!"],
+      ["celebrating", "Hey, you poked me! Hehe!"],
+      ["explaining", "Any questions? Ask away!"],
+      ["thinking", "Hmm… what shall we explore next?"],
+      ["listening", "I'm all ears — tell me!"],
+    ];
+    const [p, s] = reactions[Math.floor(Math.random() * reactions.length)]!;
+    setPose(p);
+    setSpeech(s);
+    clearTimeout(pokeTimer.current);
+    pokeTimer.current = setTimeout(() => setPose(basePoseRef.current), 2800);
+  };
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
