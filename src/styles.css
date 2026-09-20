@@ -170,3 +170,50 @@
     color: var(--color-foreground);
   }
 }
+
+:root {
+  --card: oklch(0.985 0.012 88);
+  --card-foreground: oklch(0.27 0.035 60);
+  --popover: oklch(0.985 0.012 88);
+  --popover-foreground: oklch(0.27 0.035 60);
+  --primary: oklch(0.32 0.048 158);
+  --primary-foreground: oklch(0.965 0.012 95);
+  --secondary: oklch(0.92 0.03 85);
+  --secondary-foreground: oklch(0.3 0.04 60);
+  --muted: oklch(0.93 0.02 85);
+  --muted-foreground: oklch(0.52 0.03 65);
+  --accent: oklch(0.78 0.15 65);
+  --accent-foreground: oklch(0.25 0.05 55);
+  --border: oklch(0.87 0.025 80);
+  --input: oklch(0.87 0.025 80);
+  --ring: oklch(0.62 0.09 63);
+}
+
+@layer base {
+  body {
+    font-family: var(--font-sans);
+  }
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+  }
+}
+
+@utility bg-wall {
+  background-image: var(--gradient-wall);
+}
+
+@utility text-chalkwrite {
+  font-family: var(--font-chalk);
+  color: var(--chalk);
+  text-shadow: 0 0 10px oklch(1 0 0 / 0.25);
+}
+
+@utility shadow-board {
+  box-shadow: var(--shadow-board);
+}
+
+@utility shadow-soft {
+  box-shadow: var(--shadow-soft);
+}
