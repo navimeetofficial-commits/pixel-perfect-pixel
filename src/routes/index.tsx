@@ -182,7 +182,7 @@ function Index() {
       </AnimatePresence>
 
       {/* Dev controls */}
-      <div className="fixed bottom-3 left-1/2 z-[60] flex -translate-x-1/2 flex-wrap justify-center gap-1.5 rounded-full border border-border bg-card/90 px-2 py-1.5 shadow-soft backdrop-blur">
+      <div className="fixed bottom-3 left-1/2 z-[60] flex max-w-[95vw] -translate-x-1/2 items-center gap-1 overflow-x-auto rounded-full border border-border bg-card/90 px-2 py-1.5 shadow-soft backdrop-blur">
         {[
           {
             label: "Start Lesson",
@@ -206,7 +206,7 @@ function Index() {
           <button
             key={b.label}
             onClick={b.fn}
-            className="rounded-full px-3 py-1.5 text-xs font-medium hover:bg-secondary"
+            className="shrink-0 whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-medium hover:bg-secondary"
           >
             {b.label}
           </button>
