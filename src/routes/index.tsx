@@ -154,7 +154,7 @@ function Index() {
                 />
               </div>
 
-              <div className="grid min-h-0 grid-rows-[minmax(0,1fr)_auto] gap-2 sm:grid-cols-[minmax(0,1fr)_200px] sm:grid-rows-1 sm:items-end sm:gap-4">
+              <div className="grid min-h-0 grid-rows-[minmax(0,1fr)_auto] gap-2 sm:grid-cols-[minmax(0,1fr)_200px] sm:grid-rows-1 sm:items-stretch sm:gap-4">
                 <motion.div layoutId="canvas-morph" className="min-h-0">
                   <Blackboard
                     slide={slide}
@@ -164,7 +164,7 @@ function Index() {
                     onClose3d={() => setFullscreen3d(false)}
                   />
                 </motion.div>
-                <div className="flex h-24 items-end justify-center sm:h-full">
+                <div className="flex h-24 items-end justify-center sm:h-full sm:pb-2">
                   <Teacher state={teacher} />
                 </div>
               </div>
